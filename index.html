@@ -355,22 +355,23 @@ function numSize(s){
   return m ? parseFloat(m[1]) : null;
 }
 function fmtSz(n){ return (n % 1 === 0) ? String(n) : n.toFixed(1); }
-function conversions(g, sizeStr){
+function conversions(g, sizeStr, off){
   const n = numSize(sizeStr);
   const out = [];
   if(n===null) return out;
+  if(off===undefined) off = 1.5;
   if(g==='M'){
-    out.push({v:fmtSz(n+1.5), l:"WOMEN'S"});
+    out.push({v:fmtSz(n+off), l:"WOMEN'S"});
   } else if(g==='W'){
-    out.push({v:fmtSz(n-1.5), l:"MEN'S"});
+    out.push({v:fmtSz(n-off), l:"MEN'S"});
   } else if(g==='K'){
     const z = String(sizeStr).toUpperCase();
     if(/Y/.test(z) || (n>=3.5 && n<=7)){
       out.push({v:fmtSz(n), l:"= MEN'S"});
-      out.push({v:fmtSz(n+1.5), l:"= WOMEN'S"});
+      out.push({v:fmtSz(n+off), l:"= WOMEN'S"});
     }
   } else {
-    out.push({v:fmtSz(n+1.5), l:"WOMEN'S"});
+    out.push({v:fmtSz(n+off), l:"WOMEN'S"});
   }
   return out;
 }
@@ -430,7 +431,9 @@ function handleScan(upc){
 
   document.getElementById('msrpnum').textContent = fmtMoney(rec.msrp) || '—';
 
-  const convs = conversions(g, rec.size);
+  /* adidas converts +1 to women's; everything else +1.5 */
+  const isAdidas = /ADIDAS/i.test([rec.brand, rec.style, rec.color].join(' '));
+  const convs = conversions(g, rec.size, isAdidas ? 1 : 1.5);
   const cr = document.getElementById('convrow');
   cr.innerHTML = convs.map(c=>'<div class="conv"><small>'+c.l+'</small>'+c.v+'</div>').join('');
   document.getElementById('convblock').style.display = convs.length ? 'block' : 'none';
