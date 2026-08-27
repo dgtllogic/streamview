@@ -11,24 +11,24 @@
   @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&display=swap');
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-user-select:none; user-select:none; }
-  html, body { width:100%; height:100%; background:#000; overflow:hidden; touch-action:manipulation; }
+  html, body { width:100%; height:100%; background:#fff; overflow:hidden; touch-action:manipulation; }
 
   #stage {
-    position:absolute; inset:0; background:#000;
+    position:absolute; inset:0; background:#fff;
     display:flex; flex-direction:column;
     font-family:'Barlow Condensed', 'Arial Narrow', sans-serif;
-    color:#fff;
+    color:#111;
   }
 
   /* ---------- IDLE ---------- */
   #idle { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3vh; }
   #idle .pulse {
     font-family:'Anton', Impact, sans-serif;
-    font-size:12vh; letter-spacing:0.08em; color:#333;
+    font-size:12vh; letter-spacing:0.08em; color:#c4c4c4;
     animation: breathe 2.2s ease-in-out infinite;
   }
   @keyframes breathe { 0%,100%{opacity:.35} 50%{opacity:1} }
-  #idle .count { font-size:4vh; color:#555; letter-spacing:0.15em; }
+  #idle .count { font-size:4vh; color:#9a9a9a; letter-spacing:0.15em; }
 
   /* ---------- ITEM DISPLAY (LANDSCAPE) ---------- */
   #item { flex:1; display:none; flex-direction:column; min-height:0; }
@@ -48,17 +48,25 @@
 
   .sizeblock {
     flex:0 0 56%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    border-right:0.5vh solid #222; min-width:0;
+    border-right:0.5vh solid #e2e2e2; min-width:0;
   }
   .sizelabel { font-size:5vh; font-weight:700; letter-spacing:0.4em; color:#8a8a8a; }
   .sizenum {
     font-family:'Anton', Impact, sans-serif;
-    font-size:52vh; line-height:0.95; color:#fff;
+    font-size:52vh; line-height:0.95; color:#111;
     text-align:center; width:100%;
     white-space:nowrap; overflow:hidden;
   }
   .sizenum.long  { font-size:34vh; }
   .sizenum.xlong { font-size:20vh; }
+  .widetag {
+    display:none; margin-top:1vh;
+    background:#111; color:#fff;
+    font-family:'Anton', Impact, sans-serif;
+    font-size:8vh; line-height:1.1; letter-spacing:0.25em;
+    padding:0.6vh 4vw 0.6vh calc(4vw + 0.25em); border-radius:2vh;
+  }
+  .widetag.show { display:block; }
 
   .rightcol {
     flex:1; display:flex; flex-direction:column; justify-content:center;
@@ -68,14 +76,14 @@
   .msrplabel { font-size:4.5vh; font-weight:700; letter-spacing:0.4em; color:#8a8a8a; }
   .msrpnum {
     font-family:'Anton', Impact, sans-serif;
-    font-size:22vh; line-height:1; color:#3dff7c;
+    font-size:22vh; line-height:1; color:#009e3c;
     white-space:nowrap;
   }
   .convblock { text-align:center; }
   .convrow { display:flex; justify-content:center; gap:4vw; flex-wrap:wrap; }
   .conv {
     font-family:'Anton', Impact, sans-serif;
-    font-size:10vh; line-height:1; color:#ffd84d;
+    font-size:10vh; line-height:1; color:#d97706;
   }
   .conv small {
     font-family:'Barlow Condensed'; font-weight:700; font-size:3.4vh;
@@ -83,20 +91,9 @@
   }
 
   .stylebar {
-    flex:0 0 auto; padding:1vh 3vw 1.4vh; text-align:center; border-top:0.5vh solid #222;
-    font-size:4vh; font-weight:600; color:#bbb; line-height:1.2;
+    flex:0 0 auto; padding:1vh 3vw 1.4vh; text-align:center; border-top:0.5vh solid #e2e2e2;
+    font-size:4vh; font-weight:600; color:#555; line-height:1.2;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-
-  /* NOT FOUND */
-  #notfound { flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; gap:2vh; }
-  #notfound.show { display:flex; }
-  #notfound .nf { font-family:'Anton', Impact, sans-serif; font-size:18vh; color:#ff4d4d; letter-spacing:0.05em;}
-  #notfound .upc { font-size:6vh; color:#888; letter-spacing:0.2em; }
-  #nfmanual {
-    background:#ffd84d; color:#000; border:none; border-radius:14px;
-    padding:2vh 4vw; font-family:'Anton', Impact, sans-serif;
-    font-size:5.5vh; letter-spacing:.06em; margin-top:1vh;
   }
 
   /* scan flash */
@@ -116,8 +113,8 @@
   }
   #manualbtn {
     position:fixed; bottom:10px; right:10px; z-index:50;
-    background:rgba(255,255,255,.06); color:#666;
-    border:1px solid #2a2a2a; border-radius:12px;
+    background:rgba(0,0,0,.04); color:#aaa;
+    border:1px solid #e0e0e0; border-radius:12px;
     padding:10px 16px; font-family:'Anton', Impact, sans-serif;
     font-size:16px; letter-spacing:.08em;
   }
@@ -126,8 +123,8 @@
   #gear {
     position:fixed; top:10px; right:10px; z-index:50;
     width:52px; height:52px; border-radius:50%;
-    background:rgba(255,255,255,.06); color:#666;
-    border:1px solid #2a2a2a;
+    background:rgba(0,0,0,.04); color:#aaa;
+    border:1px solid #e0e0e0;
     font-size:26px; line-height:50px; text-align:center;
   }
   #admin {
@@ -171,6 +168,7 @@
       <div class="sizeblock">
         <div class="sizelabel">SIZE</div>
         <div class="sizenum" id="sizenum">9.5</div>
+        <div class="widetag" id="widetag">WIDE</div>
       </div>
       <div class="rightcol">
         <div class="msrpblock">
@@ -183,12 +181,6 @@
       </div>
     </div>
     <div class="stylebar" id="stylebar"></div>
-  </div>
-
-  <div id="notfound">
-    <div class="nf">NOT FOUND</div>
-    <div class="upc" id="nfupc"></div>
-    <button id="nfmanual" onclick="setManual(true)">OPEN SIZE GUIDE</button>
   </div>
 
   <div id="manualview">
@@ -353,8 +345,6 @@ function parseGender(g, sizeStr){
   if(/MEN|MALE|^M$|^M\b/.test(s)) return 'M';
   const z = String(sizeStr||'').toUpperCase();
   if(/Y$|C$/.test(z)) return 'K';
-  if(/W$/.test(z)) return 'W';
-  if(/M$/.test(z)) return 'M';
   return 'U';
 }
 function genderLabel(g){
@@ -394,8 +384,19 @@ function fmtMoney(v){
 /* ============ DISPLAY ============ */
 function showIdle(){
   document.getElementById('item').classList.remove('show');
-  document.getElementById('notfound').classList.remove('show');
   document.getElementById('idle').style.display='flex';
+}
+/* split a size like "7.0W" into {disp:"7", width:"WIDE"} */
+function sizeDisplay(sz){
+  const raw = String(sz||'').trim().toUpperCase();
+  const m = raw.match(/^(\d+(?:\.\d+)?)\s*(W|WIDE|X-?WIDE|XW|EW|EE|2E|4E)$/);
+  if(m){
+    const wide = /^(XW|EW|4E|X-?WIDE)$/.test(m[2]) ? 'EXTRA WIDE' : 'WIDE';
+    return { disp: fmtSz(parseFloat(m[1])), width: wide };
+  }
+  const p = raw.match(/^(\d+(?:\.\d+)?)$/);
+  if(p) return { disp: fmtSz(parseFloat(p[1])), width: '' };
+  return { disp: raw || '\u2014', width: '' };
 }
 function handleScan(upc){
   upc = cleanUPC(upc);
@@ -405,28 +406,27 @@ function handleScan(upc){
   if(!rec && upc.length===13 && upc[0]==='0') rec = DB[upc.slice(1)];
   if(!rec && upc.length===11) rec = DB['0'+upc];
 
-  document.getElementById('idle').style.display='none';
   const item = document.getElementById('item');
-  const nf = document.getElementById('notfound');
 
   if(!rec){
-    item.classList.remove('show');
-    nf.classList.add('show');
-    document.getElementById('nfupc').textContent = upc;
-    reflash(nf);
+    setManual(true);   /* unknown UPC: straight to the size guide, no error shown */
     return;
   }
-  nf.classList.remove('show');
+  setManual(false);
 
+  document.getElementById('idle').style.display='none';
   const g = parseGender(rec.gender, rec.size);
   const gb = document.getElementById('genderbar');
   gb.textContent = genderLabel(g);
   gb.className = 'genderbar ' + g;
 
-  const sz = String(rec.size||'—').toUpperCase();
+  const sd = sizeDisplay(rec.size);
   const sn = document.getElementById('sizenum');
-  sn.textContent = sz;
-  sn.className = 'sizenum' + (sz.length>4 ? (sz.length>7?' xlong':' long') : '');
+  sn.textContent = sd.disp;
+  sn.className = 'sizenum' + (sd.disp.length>4 ? (sd.disp.length>7?' xlong':' long') : '');
+  const wt = document.getElementById('widetag');
+  wt.textContent = sd.width;
+  wt.classList.toggle('show', !!sd.width);
 
   document.getElementById('msrpnum').textContent = fmtMoney(rec.msrp) || '—';
 
@@ -447,21 +447,22 @@ function reflash(el){
   el.classList.remove('flashin'); void el.offsetWidth; el.classList.add('flashin');
 }
 
-/* ============ GLOBAL SCANNER CAPTURE ============ */
+/* ============ GLOBAL SCANNER CAPTURE (works on every screen incl. size guide) ============ */
 let buf = '', lastKey = 0;
-document.addEventListener('keydown', function(e){
+function scanKey(e){
   if(document.getElementById('admin').classList.contains('show') && document.activeElement && document.activeElement.tagName==='INPUT') return;
   const now = Date.now();
   if(now - lastKey > 300) buf = '';
   lastKey = now;
   if(e.key === 'Enter'){
-    if(buf.length >= 6){ handleScan(buf); toggleAdmin(false); setManual(false); }
+    if(buf.length >= 6){ const code = buf; buf=''; toggleAdmin(false); handleScan(code); }
     buf = '';
     e.preventDefault();
     return;
   }
   if(/^[0-9]$/.test(e.key)) buf += e.key;
-});
+}
+document.addEventListener('keydown', scanKey);
 
 /* ============ MANUAL MODE ============ */
 /* Size guide is embedded below (base64) — works fully offline, no internet needed */
@@ -477,7 +478,13 @@ function setManual(on){
   manualOn = on;
   const mv = document.getElementById('manualview');
   const fr = document.getElementById('guideframe');
-  if(on && !fr.dataset.loaded){ fr.srcdoc = b64utf8(GUIDE_B64); fr.dataset.loaded = '1'; }
+  if(on && !fr.dataset.loaded){
+    fr.dataset.loaded = '1';
+    fr.addEventListener('load', function(){
+      try{ fr.contentDocument.addEventListener('keydown', scanKey); }catch(e){}
+    });
+    fr.srcdoc = b64utf8(GUIDE_B64);
+  }
   mv.classList.toggle('show', on);
   document.getElementById('manualbtn').style.display = on ? 'none' : 'block';
   document.getElementById('gear').style.display = on ? 'none' : 'block';
