@@ -484,6 +484,10 @@ function setManual(on){
       try{ fr.contentDocument.addEventListener('keydown', scanKey); }catch(e){}
     });
     fr.srcdoc = b64utf8(GUIDE_B64);
+  } else if(on){
+    /* reset guide to its home grid: close any blown-up size + settings panel */
+    try{ fr.contentWindow.closeOverlay(); }catch(e){}
+    try{ fr.contentWindow.closeSettings(); }catch(e){}
   }
   mv.classList.toggle('show', on);
   document.getElementById('manualbtn').style.display = on ? 'none' : 'block';
