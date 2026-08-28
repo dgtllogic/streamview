@@ -237,6 +237,8 @@
     <button id="mode_v90" onclick="setMode('v90')">VERTICAL &#8635;</button>
     <button id="mode_v270" onclick="setMode('v270')">VERTICAL &#8634;</button>
     <div class="info">VERTICAL is for a physically rotated monitor &mdash; the screen will look sideways on the iPad but correct on the monitor. Pick whichever direction reads right-side-up.</div>
+    <button id="fillbtn" onclick="toggleFill()" style="margin-top:10px;">FILL MODE: OFF</button>
+    <div class="info">FILL uses the monitor's full width. To use it: on the LG, press the joystick under the screen &rarr; Settings &rarr; Picture &rarr; Aspect Ratio &rarr; <b>Wide</b>. Then turn FILL ON here. (With FILL off, keep the monitor on Original.)</div>
   </div>
 
   <div class="sec">
@@ -257,6 +259,7 @@
 let DB = {};
 let COLS = null;
 let MODE = 'land';   /* 'land' | 'v90' | 'v270' */
+let FILL = false;    /* pre-compensates the monitor's 16:9->21:9 Wide stretch */
 
 /* ============ DISPLAY MODE / ROTATION ============ */
 function applyMode(){
@@ -265,10 +268,18 @@ function applyMode(){
   document.body.classList.toggle('vert', vert);
   if(vert){
     const W = window.innerWidth, H = window.innerHeight;
+    const deg = (MODE==='v90' ? 90 : 270);
     s.style.inset = 'auto';
     s.style.top = '50%'; s.style.left = '50%';
-    s.style.width = H + 'px'; s.style.height = W + 'px';
-    s.style.transform = 'translate(-50%,-50%) rotate(' + (MODE==='v90' ? 90 : 270) + 'deg)';
+    if(FILL){
+      /* monitor stretches the signal 1.333x along its long axis (Wide ratio);
+         render 1.333x taller and squeeze 0.75x so it lands undistorted */
+      s.style.width = H + 'px'; s.style.height = (W * 4 / 3) + 'px';
+      s.style.transform = 'translate(-50%,-50%) rotate(' + deg + 'deg) scale(1, 0.75)';
+    } else {
+      s.style.width = H + 'px'; s.style.height = W + 'px';
+      s.style.transform = 'translate(-50%,-50%) rotate(' + deg + 'deg)';
+    }
   } else {
     s.style.inset = '0';
     s.style.top = ''; s.style.left = '';
@@ -279,6 +290,17 @@ function applyMode(){
     const b = document.getElementById('mode_'+m);
     if(b) b.style.background = (m===MODE) ? '#2557d6' : '#333';
   });
+  const fb = document.getElementById('fillbtn');
+  if(fb){
+    fb.textContent = 'FILL MODE: ' + (FILL ? 'ON' : 'OFF');
+    fb.style.background = FILL ? '#2557d6' : '#333';
+    fb.style.display = vert ? 'inline-block' : 'none';
+  }
+}
+function toggleFill(){
+  FILL = !FILL;
+  try{ localStorage.setItem('sv_fill', FILL ? '1' : ''); }catch(e){}
+  applyMode();
 }
 function setMode(m){
   MODE = m;
@@ -300,6 +322,7 @@ function restore(){
     const d = localStorage.getItem('sv_db');
     if(d){ DB = JSON.parse(d); COLS = JSON.parse(localStorage.getItem('sv_cols')||'null'); }
     MODE = localStorage.getItem('sv_mode') || 'land';
+    FILL = !!localStorage.getItem('sv_fill');
     const f = localStorage.getItem('sv_file');
     if(Object.keys(DB).length){
       setInfo('Restored <span class="ok">' + Object.keys(DB).length.toLocaleString() + ' items</span>' + (f ? ' from ' + f : '') + '.');
