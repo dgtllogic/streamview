@@ -100,6 +100,34 @@
   @keyframes flash { 0%{opacity:0} 100%{opacity:1} }
   .flashin { animation: flash .18s ease-out; }
 
+  /* ---------- VERTICAL MODE ---------- */
+  body.vert #stage { container-type:size; }
+  body.vert .mainrow { flex-direction:column; }
+  body.vert .sizeblock {
+    flex:1 1 auto; border-right:none; min-height:0;
+  }
+  body.vert .rightcol { display:contents; }
+  body.vert .genderbar { font-size:5.5cqh; padding:0.8cqh 0; letter-spacing:0.12em; }
+  body.vert .sizelabel { font-size:2.4cqh; letter-spacing:0.4em; }
+  body.vert .sizenum { font-size:30cqh; line-height:0.95; }
+  body.vert .sizenum.long  { font-size:18cqh; }
+  body.vert .sizenum.xlong { font-size:11cqh; }
+  body.vert .widetag { font-size:4.5cqh; letter-spacing:0.25em; padding:0.5cqh 3.5cqh 0.5cqh 4.1cqh; border-radius:1.4cqh; margin-top:1cqh; }
+  body.vert .msrpblock { border-top:0.3cqh solid #e2e2e2; padding:1cqh 0 1.2cqh; }
+  body.vert .msrplabel { font-size:2.2cqh; letter-spacing:0.4em; }
+  body.vert .msrpnum { font-size:12cqh; }
+  body.vert .convblock { border-top:0.3cqh solid #e2e2e2; padding:1.2cqh 0 1.4cqh; }
+  body.vert .convrow { gap:5cqh; }
+  body.vert .conv { font-size:7cqh; }
+  body.vert .conv small { font-size:2.4cqh; margin-bottom:0.4cqh; }
+  body.vert .stylebar {
+    border-top:0.3cqh solid #e2e2e2; padding:1cqh 3% 1.4cqh;
+    font-size:4cqh; font-weight:700; color:#222; line-height:1.2;
+    white-space:normal; text-overflow:clip;
+  }
+  body.vert #idle .pulse { font-size:9cqh; }
+  body.vert #idle .count { font-size:3cqh; }
+
   /* ---------- MANUAL MODE (embedded size guide) ---------- */
   #manualview { position:absolute; inset:0; z-index:20; display:none; background:#000; }
   #manualview.show { display:block; }
@@ -204,6 +232,14 @@
   </div>
 
   <div class="sec">
+    <h2>DISPLAY MODE</h2>
+    <button id="mode_land" onclick="setMode('land')">LANDSCAPE</button>
+    <button id="mode_v90" onclick="setMode('v90')">VERTICAL &#8635;</button>
+    <button id="mode_v270" onclick="setMode('v270')">VERTICAL &#8634;</button>
+    <div class="info">VERTICAL is for a physically rotated monitor &mdash; the screen will look sideways on the iPad but correct on the monitor. Pick whichever direction reads right-side-up.</div>
+  </div>
+
+  <div class="sec">
     <h2>TEST / MANUAL SCAN</h2>
     <input type="text" id="manual" inputmode="numeric" placeholder="Type UPC and press Enter"
       onkeydown="if(event.key==='Enter'){handleScan(this.value.trim());this.value='';}">
@@ -220,6 +256,36 @@
 /* ============ STATE ============ */
 let DB = {};
 let COLS = null;
+let MODE = 'land';   /* 'land' | 'v90' | 'v270' */
+
+/* ============ DISPLAY MODE / ROTATION ============ */
+function applyMode(){
+  const s = document.getElementById('stage');
+  const vert = (MODE !== 'land');
+  document.body.classList.toggle('vert', vert);
+  if(vert){
+    const W = window.innerWidth, H = window.innerHeight;
+    s.style.inset = 'auto';
+    s.style.top = '50%'; s.style.left = '50%';
+    s.style.width = H + 'px'; s.style.height = W + 'px';
+    s.style.transform = 'translate(-50%,-50%) rotate(' + (MODE==='v90' ? 90 : 270) + 'deg)';
+  } else {
+    s.style.inset = '0';
+    s.style.top = ''; s.style.left = '';
+    s.style.width = ''; s.style.height = '';
+    s.style.transform = '';
+  }
+  ['land','v90','v270'].forEach(m=>{
+    const b = document.getElementById('mode_'+m);
+    if(b) b.style.background = (m===MODE) ? '#2557d6' : '#333';
+  });
+}
+function setMode(m){
+  MODE = m;
+  try{ localStorage.setItem('sv_mode', m); }catch(e){}
+  applyMode();
+}
+window.addEventListener('resize', applyMode);
 
 /* ============ PERSISTENCE ============ */
 function saveDB(name){
@@ -233,12 +299,14 @@ function restore(){
   try{
     const d = localStorage.getItem('sv_db');
     if(d){ DB = JSON.parse(d); COLS = JSON.parse(localStorage.getItem('sv_cols')||'null'); }
+    MODE = localStorage.getItem('sv_mode') || 'land';
     const f = localStorage.getItem('sv_file');
     if(Object.keys(DB).length){
       setInfo('Restored <span class="ok">' + Object.keys(DB).length.toLocaleString() + ' items</span>' + (f ? ' from ' + f : '') + '.');
     }
   }catch(e){}
   updateIdle();
+  applyMode();
 }
 function clearAll(){
   DB = {}; COLS = null;
@@ -410,6 +478,7 @@ function handleScan(upc){
   const item = document.getElementById('item');
 
   if(!rec){
+    window.LAST_ADIDAS = false;   /* unknown item: guide back to standard */
     setManual(true);   /* unknown UPC: straight to the size guide, no error shown */
     return;
   }
@@ -433,6 +502,7 @@ function handleScan(upc){
 
   /* adidas converts +1 to women's; everything else +1.5 */
   const isAdidas = /ADIDAS/i.test([rec.brand, rec.style, rec.color].join(' '));
+  window.LAST_ADIDAS = isAdidas;
   const convs = conversions(g, rec.size, isAdidas ? 1 : 1.5);
   const cr = document.getElementById('convrow');
   cr.innerHTML = convs.map(c=>'<div class="conv"><small>'+c.l+'</small>'+c.v+'</div>').join('');
@@ -476,6 +546,15 @@ function b64utf8(s){
   for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
   return new TextDecoder('utf-8').decode(bytes);
 }
+/* make the size guide follow the scanned item's brand: adidas => +1, else +1.5 */
+function syncGuideAdidas(fr){
+  try{
+    const btn = fr.contentDocument.getElementById('adidasBtn');
+    if(!btn) return;
+    const on = /ADIDAS/.test(btn.textContent || '');
+    if(on !== !!window.LAST_ADIDAS) btn.click();
+  }catch(e){}
+}
 let manualOn = false;
 function setManual(on){
   manualOn = on;
@@ -485,10 +564,12 @@ function setManual(on){
     fr.dataset.loaded = '1';
     fr.addEventListener('load', function(){
       try{ fr.contentDocument.addEventListener('keydown', scanKey); }catch(e){}
+      syncGuideAdidas(fr);
     });
     fr.srcdoc = b64utf8(GUIDE_B64);
   } else if(on){
     /* reset guide to its home grid: close any blown-up size + settings panel */
+    syncGuideAdidas(fr);
     try{ fr.contentWindow.closeOverlay(); }catch(e){}
     try{ fr.contentWindow.closeSettings(); }catch(e){}
   }
